@@ -17,7 +17,7 @@ DCCC is a cooperative co-evolution algorithm for Large-Scale Global Optimization
 - **SaNSDE 子优化器 / SaNSDE sub-optimizer**：自适应差分进化算法，自适应选择变异策略（rand/1 或 current-to-best/2）、缩放因子 F 的分布（正态或柯西）以及交叉率 CR。Self-adaptive DE that adaptively selects mutation strategy (rand/1 or current-to-best/2), scaling factor distribution (normal or Cauchy), and crossover rate CR.
 - **贡献度评估 / Contribution evaluation**：记录每次优化后分组的适应度总提升（累积贡献度 δ）。Accumulates fitness improvement (contribution δ) after each optimization.
 - **难度评估 / Difficulty evaluation**：基于种群个体适应度与到最优个体距离的相关性，计算分组难度（1 - |相关系数|）。Computes group difficulty based on correlation between fitness and distance to best individual (1 - |correlation|).
-- **动态选择 / Dynamic selection**：以概率 0.3 随机选择分组，否则选择贡献度 × 难度最大的分组进行下一轮优化。With probability 0.3, randomly select a group; otherwise, select the group with highest contribution × difficulty for next optimization.
+- **动态选择 / Dynamic selection**：选择贡献度 × 难度最大的分组进行下一轮优化，并以概率 0.3 随机选择分组，。With probability 0.3, randomly select a group; otherwise, select the group with highest contribution × difficulty for next optimization.
 
 > 本算法是论文 *DCCC: Difficulty and Contribution Based Cooperative Coevolution for Large-Scale Optimization* 的实现。子优化器参考了 DG2 分组算法和 SaNSDE 差分进化算法。  
 > This algorithm implements the paper *DCCC: Difficulty and Contribution Based Cooperative Coevolution for Large-Scale Optimization*. The sub-optimizer is inspired by DG2 grouping and SaNSDE differential evolution.
@@ -49,7 +49,7 @@ demo/
 | `_init_population()` | 初始化种群（均匀随机，大小 100）/ Initialize population (uniform random, size 100) |
 | `_optimizer()` | SaNSDE 子优化器，自适应变异策略、F 分布、CR，并更新贡献度 / SaNSDE sub-optimizer with adaptive strategy, F distribution, CR, and contribution update |
 | `_evaluate_difficulty()` | 评估分组难度（基于适应度-距离相关性）/ Evaluate group difficulty (based on fitness-distance correlation) |
-| `_selector()` | 根据贡献度和难度选择下一分组（或随机）/ Select next group based on contribution and difficulty (or random) |
+| `_selector()` | 根据贡献度和难度选择下一分组/ Select next group based on contribution and difficulty |
 | `run()` | 主优化循环，迭代至最大评估次数 / Main optimization loop until max FEs |
 
 ---
@@ -92,12 +92,12 @@ Final best fitness: 4.520319e+2
 
 **自定义运行 / Custom run:**
 
-在 `test.py` 中修改以下变量以调整实验设置：  
-Modify these variables in `test.py` to adjust the experiment:
+在 `test.py` 和 `dccc.py` 中修改以下变量以调整实验设置：  
+Modify these variables in `test.py` and `dccc.py` to adjust the experiment:
 
 ```python
 FUNCTION_ID = 1                # 函数编号 1-15 / Function ID 1-15
-MAX_FES = 3000000              # 最大评估次数 / Max function evaluations
+MAX_FES = 3e6              # 最大评估次数 / Max function evaluations
 ```
 
 或者在自己的脚本中调用 DCCC，参见“接口说明”。  
@@ -184,7 +184,7 @@ print(f"Best fitness: {best_fitness}")
 目前未包含单元测试，但 `test.py` 提供了一个完整的端到端运行示例，可验证算法在 CEC'2013 基准函数上的表现。运行 `test.py` 应能观察到适应度逐步下降，并最终输出一个较优的数值。  
 No unit tests are included currently, but `test.py` provides a complete end-to-end run example to verify algorithm performance on CEC'2013 benchmark functions. Running `test.py` should show decreasing fitness and a reasonably good final value.
 
-未来可添加单元测试覆盖分组构建、难度计算、选择器等核心模块。  
+未来可能添加单元测试覆盖分组构建、难度计算、选择器等核心模块。  
 Future work may include unit tests for core modules such as group construction, difficulty calculation, and selector.
 
 ---
